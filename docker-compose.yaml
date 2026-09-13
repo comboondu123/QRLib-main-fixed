@@ -1,11 +1,11 @@
 services:
   qrlib:
     build: .
-    image: qrlib:latest
     container_name: qrlib
     restart: unless-stopped
     ports:
-      # 宿主机端口可用 PORT 覆盖，例如 PORT=8080 docker compose up -d
+      # 宿主机端口用 PORT 覆盖：PORT=8080 docker compose up -d
+      # 若提示 "port is already allocated"，说明 3000 被占用，先 docker rm -f 旧容器或换端口
       - "${PORT:-3000}:3000"
     environment:
       PORT: 3000

@@ -132,6 +132,27 @@ PORT=8080
 
 > 如果是宝塔面板，注意别和面板占用的端口冲突。
 
+### 启动报 `Bind for 0.0.0.0:3000 failed: port is already allocated`
+
+说明 3000 端口已经被别的东西占了（最常见：之前部署的容器还在跑，或宿主机另有进程）。**这不是代码问题**，按顺序处理：
+
+```bash
+# ① 看是谁占的
+ss -tlnp | grep 3000
+docker ps -a | grep -E "qr|3000"
+
+# ② 清掉残留容器（原来的容器名可能是 qr 或 qrlib）
+docker rm -f qr qrlib 2>/dev/null
+
+# ③ 还是被占，那就是宿主机进程；换成 8080 端口最简单
+PORT=8080 docker compose up -d --build
+
+# ④ 验证
+curl http://127.0.0.1:8080/api/health
+```
+
+> 换端口后，浏览器访问地址也要跟着变：`http://<服务器IP>:8080`，并同步放行防火墙/安全组的 8080。
+
 ---
 
 ## 五、可选：用 Nginx 反代 + 域名 + HTTPS
